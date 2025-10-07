@@ -1,0 +1,23 @@
+
+.mx-tree-dropdown {
+	padding: 8px 12px;
+	border: 1px solid #bdbdbd;
+	border-radius: 6px;
+	background: #fff;
+	font-size: 16px;
+	color: #333;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+	transition: border-color 0.2s;
+}
+
+.mx-tree-dropdown:focus {
+	border-color: #1976d2;
+	outline: none;
+}
+
+.mx-tree-dropdown option {
+	padding-left: 8px;
+	font-size: 15px;
+	background: #fff;
+	color: #333;
+}

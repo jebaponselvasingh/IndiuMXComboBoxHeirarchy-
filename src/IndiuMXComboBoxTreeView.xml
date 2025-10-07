@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget id="indium.indiumxcomboboxtreeview.IndiuMXComboBoxTreeView" pluginWidget="true" needsEntityContext="true" offlineCapable="true"
+        supportedPlatform="Web"
+        xmlns="http://www.mendix.com/widget/1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd">
+    <name>Indiu MXCombo Box Tree View</name>
+    <description>My widget description</description>
+    <icon/>
+    <properties>
+        <propertyGroup caption="General">
+            <property key="inputValue" type="attribute" required="true">
+                <caption>Dropdown Value</caption>
+                <description>Sample text input</description>
+                <attributeTypes>
+                    <attributeType name="String"/>
+                </attributeTypes>
+            </property>
+            <property key="selectedValue" type="attribute" required="false">
+                <caption>Selected Value</caption>
+                <description>Bind selected value to this attribute</description>
+                <attributeTypes>
+                    <attributeType name="String"/>
+                </attributeTypes>
+            </property>
+            <property key="width" type="string" required="false" defaultValue="240px">
+                <caption>Dropdown Width</caption>
+                <description>Set the width of the dropdown (e.g. 240px, 100%)</description>
+            </property>
+            <property key="onChange" type="action" required="false">
+                <caption>On Change</caption>
+                <description>Event triggered when selection changes</description>
+            </property>
+        </propertyGroup>
+    </properties>
+</widget>
