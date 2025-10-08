@@ -5,8 +5,12 @@ import "./ui/IndiuMXComboBoxTreeView.css";
 
 function renderOptions(data, level = 0) {
     return data.flatMap(item => [
-        <option key={item.value} value={item.value} data-label={item.label}>
-            {`${"— ".repeat(level)}${item.label}`}
+        <option
+            key={item.value}
+            value={item.value}
+            data-label={item.label}
+        >
+            {`${"\u00A0".repeat(level * 4)}${level > 0 ? "↳ " : ""}${item.label}`}
         </option>,
         ...(item.children ? renderOptions(item.children, level + 1) : [])
     ]);
@@ -56,7 +60,6 @@ export function IndiuMXComboBoxTreeView({ inputValue, selectedValue, onChange, w
         return "";
     }
 
-    const displayLabel = selected ? getSelectedLabel(selected, treeData) : "Select...";
 
     return (
         <div style={{ width }}>
