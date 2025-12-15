@@ -10,7 +10,7 @@
         <propertyGroup caption="General">
             <property key="inputValue" type="attribute" required="true">
                 <caption>Dropdown Value</caption>
-                <description>Sample text input</description>
+                <description></description>
                 <attributeTypes>
                     <attributeType name="String"/>
                 </attributeTypes>

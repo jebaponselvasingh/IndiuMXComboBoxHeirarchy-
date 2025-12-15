@@ -5,9 +5,10 @@
 	border-radius: 6px;
 	background: #fff;
 	font-size: 16px;
-	color: #333;
+	color: transparent; /* Hide the native select text */
 	box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 	transition: border-color 0.2s;
+	cursor: pointer;
 }
 
 .mx-tree-dropdown:focus {
@@ -19,5 +20,21 @@
 	padding-left: 8px;
 	font-size: 15px;
 	background: #fff;
+	color: #333; /* Options in dropdown show normal color */
+}
+
+/* Custom display for selected value (without arrow) */
+.mx-tree-selected-display {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 30px; /* Leave space for dropdown arrow */
+	padding: 8px 12px;
+	pointer-events: none; /* Allow clicks to pass through to select */
 	color: #333;
+	font-size: 16px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	z-index: 1;
 }

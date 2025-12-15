@@ -39,6 +39,9 @@ export function IndiuMXComboBoxTreeView({ inputValue, selectedValue, onChange, w
     }
     const allValues = flattenValues(treeData);
 
+    // Get the clean label (without arrow) for the currently selected value
+    const selectedLabel = selected ? getSelectedLabel(selected, treeData) : "";
+
     // Set initial selected value when tree data or selectedValue/defaultValue changes
     useEffect(() => {
         let initialSelected = "";
@@ -76,7 +79,13 @@ export function IndiuMXComboBoxTreeView({ inputValue, selectedValue, onChange, w
 
 
     return (
-        <div style={{ width }}>
+        <div style={{ width, position: 'relative' }}>
+            {/* Custom display for selected value without arrow */}
+            {selected && (
+                <div className="mx-tree-selected-display">
+                    {selectedLabel}
+                </div>
+            )}
             <select
                 value={selected}
                 onChange={handleChange}
