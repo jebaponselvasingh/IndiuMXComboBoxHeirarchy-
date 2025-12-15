@@ -1,4 +1,4 @@
-import { createElement, useState } from "react";
+import { createElement, useState, useEffect } from "react";
 
 import { HelloWorldSample } from "./components/HelloWorldSample";
 import "./ui/IndiuMXComboBoxTreeView.css";
@@ -17,14 +17,18 @@ function renderOptions(data, level = 0) {
 }
 
 export function IndiuMXComboBoxTreeView({ inputValue, selectedValue, onChange, width = "240px", defaultValue }) {
-    // Parse JSON string input
+    const [treeData, setTreeData] = useState([]);
+    const [selected, setSelected] = useState("");
 
-    let treeData = [];
-    try {
-        treeData = JSON.parse(inputValue.value || "[]");
-    } catch {
-        treeData = [];
-    }
+    // Parse JSON string input in useEffect
+    useEffect(() => {
+        try {
+            const parsedData = JSON.parse(inputValue.value || "[]");
+            setTreeData(parsedData);
+        } catch {
+            setTreeData([]);
+        }
+    }, [inputValue]);
 
     // Flatten all values for easy lookup
     function flattenValues(data) {
@@ -35,15 +39,19 @@ export function IndiuMXComboBoxTreeView({ inputValue, selectedValue, onChange, w
     }
     const allValues = flattenValues(treeData);
 
-    // Only preselect if the value exists in the dropdown
-    // Priority: selectedValue > defaultValue > empty
-    let initialSelected = "";
-    if (selectedValue?.value && allValues.includes(selectedValue.value)) {
-        initialSelected = selectedValue.value;
-    } else if (defaultValue.value && allValues.includes(defaultValue.value)) {
-        initialSelected = defaultValue.value;
-    }
-    const [selected, setSelected] = useState(initialSelected);
+    // Set initial selected value when tree data or selectedValue/defaultValue changes
+    useEffect(() => {
+        let initialSelected = "";
+        if (selectedValue?.value && allValues.includes(selectedValue.value)) {
+            initialSelected = selectedValue.value;
+        } else if (defaultValue && allValues.includes(defaultValue.value)) {
+            initialSelected = defaultValue.value;
+        }
+        setSelected(initialSelected);
+
+        console.log("defaultValue (string prop):", defaultValue);
+        console.log("selectedValue:", initialSelected);
+    }, [treeData, defaultValue, allValues]);
 
     function handleChange(e) {
         const val = e.target.value;
