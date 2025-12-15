@@ -16,7 +16,7 @@ function renderOptions(data, level = 0) {
     ]);
 }
 
-export function IndiuMXComboBoxTreeView({ inputValue, selectedValue, onChange, width = "240px" }) {
+export function IndiuMXComboBoxTreeView({ inputValue, selectedValue, onChange, width = "240px", defaultValue }) {
     // Parse JSON string input
 
     let treeData = [];
@@ -36,7 +36,13 @@ export function IndiuMXComboBoxTreeView({ inputValue, selectedValue, onChange, w
     const allValues = flattenValues(treeData);
 
     // Only preselect if the value exists in the dropdown
-    const initialSelected = allValues.includes(selectedValue?.value) ? selectedValue.value : "";
+    // Priority: selectedValue > defaultValue > empty
+    let initialSelected = "";
+    if (selectedValue?.value && allValues.includes(selectedValue.value)) {
+        initialSelected = selectedValue.value;
+    } else if (defaultValue.value && allValues.includes(defaultValue.value)) {
+        initialSelected = defaultValue.value;
+    }
     const [selected, setSelected] = useState(initialSelected);
 
     function handleChange(e) {

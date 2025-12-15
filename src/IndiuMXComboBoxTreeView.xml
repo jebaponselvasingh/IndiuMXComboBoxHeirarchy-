@@ -26,6 +26,13 @@
                 <caption>Dropdown Width</caption>
                 <description>Set the width of the dropdown (e.g. 240px, 100%)</description>
             </property>
+            <property key="defaultValue" type="attribute" required="false">
+                <caption>Default Value</caption>
+                 <description>Bind selected value to this attribute</description>
+                <attributeTypes>
+                    <attributeType name="String"/>
+                </attributeTypes>
+            </property>
             <property key="onChange" type="action" required="false">
                 <caption>On Change</caption>
                 <description>Event triggered when selection changes</description>
