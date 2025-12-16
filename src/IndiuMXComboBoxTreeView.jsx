@@ -3,16 +3,17 @@ import { createElement, useState, useEffect } from "react";
 import { HelloWorldSample } from "./components/HelloWorldSample";
 import "./ui/IndiuMXComboBoxTreeView.css";
 
-function renderOptions(data, level = 0) {
+function renderOptions(data, level = 0, selectedValue = "") {
     return data.flatMap(item => [
         <option
             key={item.value}
             value={item.value}
             data-label={item.label}
+            className={item.value === selectedValue ? "selected-option" : ""}
         >
             {`${"\u00A0".repeat(level * 4)}${level > 0 ? "↳ " : ""}${item.label}`}
         </option>,
-        ...(item.children ? renderOptions(item.children, level + 1) : [])
+        ...(item.children ? renderOptions(item.children, level + 1, selectedValue) : [])
     ]);
 }
 
@@ -93,7 +94,7 @@ export function IndiuMXComboBoxTreeView({ inputValue, selectedValue, onChange, w
                 style={{ width }}
             >
                 <option value="">Select...</option>
-                {renderOptions(treeData)}
+                {renderOptions(treeData, 0, selected)}
             </select>
         </div>
     );

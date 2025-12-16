@@ -23,6 +23,13 @@
 	color: #333; /* Options in dropdown show normal color */
 }
 
+/* Highlight the currently selected option */
+.mx-tree-dropdown option.selected-option {
+	background-color: #e3f2fd;
+	font-weight: 600;
+	color: #1976d2;
+}
+
 /* Custom display for selected value (without arrow) */
 .mx-tree-selected-display {
 	position: absolute;
