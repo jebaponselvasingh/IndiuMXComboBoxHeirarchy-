@@ -1,17 +1,16 @@
 import { createElement, useState, useEffect } from "react";
 
-import { HelloWorldSample } from "./components/HelloWorldSample";
 import "./ui/IndiuMXComboBoxTreeView.css";
 
 function renderOptions(data, level = 0, selectedValue = "") {
     return data.flatMap(item => [
         <option
-            key={item.value}
-            value={item.value}
-            data-label={item.label}
-            className={item.value === selectedValue ? "selected-option" : ""}
+            key={item.key}
+            value={item.key}
+            data-label={item.value}
+            className={item.key === selectedValue ? "selected-option" : ""}
         >
-            {`${"\u00A0".repeat(level * 4)}${level > 0 ? "↳ " : ""}${item.label}`}
+            {`${"\u00A0".repeat(level * 4)}${level > 0 ? "↳ " : ""}${item.value}`}
         </option>,
         ...(item.children ? renderOptions(item.children, level + 1, selectedValue) : [])
     ]);
@@ -34,7 +33,7 @@ export function IndiuMXComboBoxTreeView({ inputValue, selectedValue, onChange, w
     // Flatten all values for easy lookup
     function flattenValues(data) {
         return data.flatMap(item => [
-            item.value,
+            item.key,
             ...(item.children ? flattenValues(item.children) : [])
         ]);
     }
@@ -53,14 +52,12 @@ export function IndiuMXComboBoxTreeView({ inputValue, selectedValue, onChange, w
         }
         setSelected(initialSelected);
 
-        console.log("defaultValue (string prop):", defaultValue);
-        console.log("selectedValue:", initialSelected);
     }, [treeData, defaultValue, allValues]);
 
     function handleChange(e) {
         const val = e.target.value;
         setSelected(val);
-    if (selectedValue && selectedValue.setValue) selectedValue.setValue(val);
+        if (selectedValue && selectedValue.setValue) selectedValue.setValue(val);
         if (onChange && onChange.canExecute) {
             onChange.execute();
         }
@@ -69,7 +66,7 @@ export function IndiuMXComboBoxTreeView({ inputValue, selectedValue, onChange, w
     // Find the label for the selected value (without prefix)
     function getSelectedLabel(value, data) {
         for (const item of data) {
-            if (item.value === value) return item.label;
+            if (item.key === value) return item.value;
             if (item.children) {
                 const childLabel = getSelectedLabel(value, item.children);
                 if (childLabel) return childLabel;
