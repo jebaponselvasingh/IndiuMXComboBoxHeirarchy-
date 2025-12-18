@@ -1,12 +1,12 @@
-
 .mx-tree-dropdown {
 	padding: 8px 12px;
 	border: 1px solid #bdbdbd;
 	border-radius: 6px;
 	background: #fff;
 	font-size: 16px;
-	color: transparent; /* Hide the native select text */
-	box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+	color: transparent;
+	/* Hide the native select text */
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 	transition: border-color 0.2s;
 	cursor: pointer;
 }
@@ -20,7 +20,8 @@
 	padding-left: 8px;
 	font-size: 15px;
 	background: #fff;
-	color: #333; /* Options in dropdown show normal color */
+	color: #333;
+	/* Options in dropdown show normal color */
 }
 
 /* Highlight the currently selected option */
@@ -35,13 +36,30 @@
 	position: absolute;
 	top: 0;
 	left: 0;
-	right: 30px; /* Leave space for dropdown arrow */
+	right: 30px;
+	/* Leave space for dropdown arrow */
 	padding: 8px 12px;
-	pointer-events: none; /* Allow clicks to pass through to select */
+	pointer-events: none;
+	/* Allow clicks to pass through to select */
 	color: #333;
 	font-size: 16px;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	z-index: 1;
+}
+
+/* Dropdown chevron icon */
+.mx-tree-dropdown-icon {
+	position: absolute;
+	top: 50%;
+	right: 12px;
+	transform: translateY(-50%);
+	pointer-events: none;
+	/* Allow clicks to pass through to select */
+	color: #666;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 2;
 }
