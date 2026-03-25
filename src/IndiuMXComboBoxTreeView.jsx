@@ -1,135 +1,162 @@
-import { createElement, useState, useEffect } from "react";
+import { createElement, useState, useEffect, useRef } from "react";
 
 import "./ui/IndiuMXComboBoxTreeView.css";
 
-function renderOptions(data, level = 0, selectedValue = "") {
-    return data.flatMap(item => [
-        <option
-            key={item.key}
-            value={item.key}
-            data-label={item.value}
-            className={item.key === selectedValue ? "selected-option" : ""}
-        >
-            {`${"\u00A0".repeat(level * 4)}${level > 0 ? "↳ " : ""}${item.value}`}
-        </option>,
-        ...(item.children ? renderOptions(item.children, level + 1, selectedValue) : [])
-    ]);
+// Flatten tree into a list with level info for rendering and filtering.
+// `uid` is a unique path-based ID for React keys; `key` is the actual data value stored in Mendix.
+function flattenTree(data, level = 0, parentPath = "") {
+    return data.flatMap((item, i) => {
+        const uid = `${parentPath}${i}:${item.key}`;
+        return [
+            { key: item.key, value: item.value, level, uid },
+            ...(item.children ? flattenTree(item.children, level + 1, `${uid}/`) : [])
+        ];
+    });
 }
 
 export function IndiuMXComboBoxTreeView({ inputValue, selectedValue, onChange, width = "240px", defaultValue }) {
     const [treeData, setTreeData] = useState([]);
     const [selected, setSelected] = useState("");
     const [isOpen, setIsOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const containerRef = useRef(null);
+    const searchRef = useRef(null);
 
-    // Parse JSON string input in useEffect
     useEffect(() => {
         try {
-            const parsedData = JSON.parse(inputValue.value || "[]");
+            const parsedData = JSON.parse(inputValue?.value || "[]");
             setTreeData(parsedData);
         } catch {
             setTreeData([]);
         }
-    }, [inputValue]);
+    }, [inputValue?.value]);
 
-    // Flatten all values for easy lookup
-    function flattenValues(data) {
-        return data.flatMap(item => [
-            item.key,
-            ...(item.children ? flattenValues(item.children) : [])
-        ]);
+    const flatItems = flattenTree(treeData);
+
+    // Filter items by search term
+    const filteredItems = searchTerm.trim()
+        ? flatItems.filter(item => item.value.toLowerCase().includes(searchTerm.toLowerCase()))
+        : flatItems;
+
+    function getSelectedLabel(key) {
+        const found = flatItems.find(i => i.key === key);
+        return found ? found.value : "";
     }
-    const allValues = flattenValues(treeData);
 
-    // Get the clean label (without arrow) for the currently selected value
-    const selectedLabel = selected ? getSelectedLabel(selected, treeData) : "";
+    const selectedLabel = selected ? getSelectedLabel(selected) : "";
 
-    // Set initial selected value when tree data or selectedValue/defaultValue changes
+    // Set initial selected value
     useEffect(() => {
+        const allKeys = flatItems.map(i => i.key);
         let initialSelected = "";
-        if (selectedValue?.value && allValues.includes(selectedValue.value)) {
+        if (selectedValue?.value && allKeys.includes(selectedValue.value)) {
             initialSelected = selectedValue.value;
-        } else if (defaultValue && allValues.includes(defaultValue.value)) {
+        } else if (defaultValue?.value && allKeys.includes(defaultValue.value)) {
             initialSelected = defaultValue.value;
         }
         setSelected(initialSelected);
+    }, [treeData, defaultValue]);
 
-    }, [treeData, defaultValue, allValues]);
-
-    function handleChange(e) {
-        const val = e.target.value;
-        setSelected(val);
-        setIsOpen(false); // Reset chevron to downward position after selection
-        if (selectedValue && selectedValue.setValue) selectedValue.setValue(val);
-        if (onChange && onChange.canExecute) {
-            onChange.execute();
-        }
-    }
-
-    function handleFocus() {
-        setIsOpen(true);
-    }
-
-    function handleBlur() {
-        setIsOpen(false);
-    }
-
-    // Find the label for the selected value (without prefix)
-    function getSelectedLabel(value, data) {
-        for (const item of data) {
-            if (item.key === value) return item.value;
-            if (item.children) {
-                const childLabel = getSelectedLabel(value, item.children);
-                if (childLabel) return childLabel;
+    // Close on outside click
+    useEffect(() => {
+        function handleOutsideClick(e) {
+            if (containerRef.current && !containerRef.current.contains(e.target)) {
+                setIsOpen(false);
+                setSearchTerm("");
             }
         }
-        return "";
+        document.addEventListener("mousedown", handleOutsideClick);
+        return () => document.removeEventListener("mousedown", handleOutsideClick);
+    }, []);
+
+    // Focus search when opening
+    useEffect(() => {
+        if (isOpen && searchRef.current) {
+            searchRef.current.focus();
+        }
+    }, [isOpen]);
+
+    function handleSelect(key) {
+        setSelected(key);
+        setIsOpen(false);
+        setSearchTerm("");
+        if (selectedValue?.setValue) selectedValue.setValue(key);
+        if (onChange?.canExecute) onChange.execute();
     }
 
+    function toggleOpen() {
+        setIsOpen(prev => {
+            if (prev) setSearchTerm("");
+            return !prev;
+        });
+    }
 
     return (
-        <div style={{ width, position: 'relative' }}>
-            {/* Custom display for selected value without arrow */}
-            {selected && (
-                <div className="mx-tree-selected-display">
-                    {selectedLabel}
+        <div ref={containerRef} style={{ width, position: "relative" }}>
+            {/* Trigger button */}
+            <div
+                className={`mx-tree-trigger${isOpen ? " mx-tree-trigger--open" : ""}`}
+                onClick={toggleOpen}
+                role="combobox"
+                aria-expanded={isOpen}
+                aria-haspopup="listbox"
+            >
+                <span className={`mx-tree-trigger-label${!selected ? " mx-tree-trigger-placeholder" : ""}`}>
+                    {selected ? selectedLabel : "Select..."}
+                </span>
+                <div
+                    className="mx-tree-dropdown-icon"
+                    style={{ transform: `rotate(${isOpen ? "180deg" : "0deg"})`, transition: "transform 0.2s ease" }}
+                >
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M2.5 4.5L6 8L9.5 4.5"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+                    </svg>
+                </div>
+            </div>
+
+            {/* Dropdown panel */}
+            {isOpen && (
+                <div className="mx-tree-panel" role="listbox">
+                    <div className="mx-tree-search-wrapper">
+                        <input
+                            ref={searchRef}
+                            type="text"
+                            className="mx-tree-search"
+                            placeholder="Search..."
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <div className="mx-tree-options">
+                        {filteredItems.length === 0 ? (
+                            <div className="mx-tree-no-results">No results</div>
+                        ) : (
+                            filteredItems.map(item => (
+                                <div
+                                    key={item.uid}
+                                    className={`mx-tree-option${item.key === selected ? " mx-tree-option--selected" : ""}`}
+                                    onClick={() => handleSelect(item.key)}
+                                    role="option"
+                                    aria-selected={item.key === selected}
+                                >
+                                    {item.level > 0 && (
+                                        <span className="mx-tree-option-indent">
+                                            {"\u00A0".repeat(item.level * 4)}{"↳ "}
+                                        </span>
+                                    )}
+                                    {item.value}
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
             )}
-            <select
-                value={selected}
-                onChange={handleChange}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                className="mx-tree-dropdown"
-                style={{ width }}
-            >
-                <option value="">Select...</option>
-                {renderOptions(treeData, 0, selected)}
-            </select>
-            {/* Dropdown chevron icon */}
-            <div
-                className="mx-tree-dropdown-icon"
-                style={{
-                    transform: `translateY(-50%) rotate(${isOpen ? '180deg' : '0deg'})`,
-                    transition: 'transform 0.2s ease'
-                }}
-            >
-                <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path
-                        d="M2.5 4.5L6 8L9.5 4.5"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    />
-                </svg>
-            </div>
         </div>
     );
 }
-
